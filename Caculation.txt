@@ -1,0 +1,265 @@
+package test25;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+
+public class Caculation {
+
+	Frame f;
+	String btn[] = { "%", "CE", "C", "x", "¹/x", "x^2", "√", "÷", "7", "8", "9", "X", "4", "5", "6", "ㅡ", "1", "2", "3",
+			"+", "+/-", "0", ".", "=" };
+	Button[] caculBts;
+	Panel p;
+	Panel sideLeft, sideRight;
+	MenuBar mb;
+	Menu mCaculation, mConverter;
+	MenuItem mStandard, mGraph, mDateCacul, mExchangeRate, mVolume, mLength, mWeight, mTemper, mPressure;
+	TextField tfDisplay;
+	JTextField[] jtfRecord = new JTextField[1000];
+	TextField[] tfRecord = new TextField[1000];
+
+	StringBuffer result = new StringBuffer("");
+	StringBuffer dis = new StringBuffer("");
+	String[] symbol = new String[1000];
+	String[] record = new String[1000];
+	int checkRecord;
+
+	public Caculation() {
+		f = new Frame("Caculation Program");
+		caculBts = new Button[24];
+		p = new Panel();
+
+		mb = new MenuBar();
+		mCaculation = new Menu("계산");
+		mConverter = new Menu("변환");
+		mStandard = new MenuItem("표준");
+		mGraph = new MenuItem("그래프");
+		mDateCacul = new MenuItem("날짜 계산");
+		mExchangeRate = new MenuItem("환율");
+		mVolume = new MenuItem("부피");
+		mLength = new MenuItem("길이");
+		mWeight = new MenuItem("무게 및 질량");
+		mTemper = new MenuItem("온도");
+		mPressure = new MenuItem("압력");
+		sideLeft = new Panel();
+		sideRight = new Panel();
+		tfDisplay = new TextField();
+
+		for (int i = 0; i < tfRecord.length; i++) {
+			tfRecord[i] = new TextField();
+		}
+		for (int i = 0; i < jtfRecord.length; i++) {
+			jtfRecord[i] = new JTextField();
+		}
+		for (int i = 0; i < btn.length; i++) {
+			caculBts[i] = new Button(btn[i]);
+		}
+	}
+
+	public void startFrame() {
+
+		// 프레임 속성
+
+		f.setSize(700, 700);
+		f.setVisible(true);
+		f.setMenuBar(mb);
+		f.add(p);
+
+		// 패널 속성
+		p.setBackground(Color.black);
+		p.setLayout(null);
+
+		// 결과값 창
+		p.add(tfDisplay);
+		tfDisplay.setSize(450, 200);
+		tfDisplay.setLocation(0, 0);
+		tfDisplay.setFont(new Font("Serif", Font.ITALIC, 40));
+
+		// 사이드레프트
+		p.add(sideLeft);
+
+		sideLeft.setBackground(Color.white);
+		sideLeft.setSize(450, 450);
+		sideLeft.setLocation(0, 200);
+		sideLeft.setLayout(new GridLayout(6, 4));
+
+		// 사이드라이트
+		p.add(sideRight);
+
+		sideRight.setBackground(Color.BLACK);
+		sideRight.setSize(250, 700);
+		sideRight.setLocation(450, 0);
+		sideRight.setLayout(null);
+
+		// 메뉴바
+		mb.add(mCaculation);
+		mb.add(mConverter);
+		mCaculation.add(mStandard);
+		mCaculation.add(mGraph);
+		mCaculation.add(mDateCacul);
+		mConverter.add(mExchangeRate);
+		mConverter.add(mVolume);
+		mConverter.add(mLength);
+		mConverter.add(mWeight);
+		mConverter.add(mTemper);
+		mConverter.add(mPressure);
+
+		for (int i = 0; i < caculBts.length; i++) {
+			sideLeft.add(caculBts[i]);
+		}
+
+		setFuncNum(caculBts);
+		closingWindow();
+	}
+
+	void setFuncNum(Button[] b) {
+
+		for (int i = 0; i < b.length; i++) {
+
+			caculBts[i].addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					List<Double> li = new ArrayList();
+					String input = e.getActionCommand();
+					int i = 0;
+					double res = 0;
+
+					result = result.append(input);
+					tfDisplay.setText(result.toString());
+
+					// 연산
+					if (input.equals("=")) {
+
+						// 변수
+						StringTokenizer st = new StringTokenizer(result.toString(), "[%xX=ㅡ^+÷C√]");
+
+						while (st.hasMoreTokens()) {
+							li.add(Double.parseDouble(st.nextToken()));
+						}
+						// 기호
+						for (int j = 0; j < result.length(); j++) {
+							if (!(Character.isDigit(result.charAt(j))) && result.toString().charAt(j) != '.'
+									&& result.toString().charAt(j) != '-') {
+								symbol[i++] = String.valueOf(result.charAt(j));
+							}
+						}
+
+						res = li.get(0);
+
+						for (int k = 0; k < li.size() - 1; k++) {
+
+							switch (symbol[k]) {
+
+							case "+":
+								res += li.get(k + 1);
+								break;
+							case "ㅡ":
+								res -= li.get(k + 1);
+								break;
+							case "÷":
+								res /= li.get(k + 1);
+								break;
+							case "X":
+								res *= li.get(k + 1);
+								break;
+							case "%":
+								res %= li.get(k + 1);
+								break;
+							}
+						}
+
+						// 이력 문자열
+						if ((int) res == res) {
+							record[checkRecord] = result.toString() + String.valueOf((int) res);
+						} else {
+							record[checkRecord] = result.toString() + String.valueOf(res);
+						}
+						// record 영역 속성
+						jtfRecord[checkRecord].setText(record[checkRecord]);
+						jtfRecord[checkRecord].setSize(233, 50);
+						jtfRecord[checkRecord].setBackground(Color.BLACK);
+						jtfRecord[checkRecord].setFont(new Font("Serif", Font.PLAIN, 30));
+						jtfRecord[checkRecord].setForeground(Color.YELLOW);
+						jtfRecord[checkRecord].setLocation(0, checkRecord * 50);
+						jtfRecord[checkRecord].setHorizontalAlignment(JTextField.RIGHT);
+
+						// 패널 대입
+						sideRight.add(jtfRecord[checkRecord]);
+
+						checkRecord++;
+						checkInt(res);
+
+					} else if (input.equals("√")) {
+
+						res = (double) Math.sqrt(Double.parseDouble(plate(result.toString())));
+						checkInt(res);
+
+					} else if (input.equals("¹/x")) {
+
+						res = 1 / Double.parseDouble(plate(result.toString()));
+						checkInt(res);
+
+					} else if (input.equals("x^2")) {
+						res = (double) Math.pow(Double.parseDouble(plate(result.toString())), 2);
+						checkInt(res);
+					} else if (input.equals("+/-")) {
+						res = -Double.parseDouble(plate(result.toString()));
+						checkInt(res);
+					}
+
+					if (input.charAt(0) == 'C') {
+						result.delete(0, result.length());
+						tfDisplay.setText(result.toString());
+					}
+				}
+			});
+		}
+
+	}
+
+	String plate(String result) {
+
+		String tem = "";
+		for (int j = 0; j < result.toString().length(); j++) {
+			if (!(Character.isDigit(result.toString().charAt(j))) && result.toString().charAt(j) != '.'
+					&& result.toString().charAt(j) != '-') {
+				break;
+			}
+			tem += String.valueOf(result.toString().charAt(j));
+		}
+		return tem;
+	}
+
+	void checkInt(Double res) {
+		double checkInt = res;
+
+		if ((int) checkInt == res) {
+			tfDisplay.setText(String.valueOf((int) checkInt));
+			result = result.replace(0, result.length(), String.valueOf((int) checkInt));
+		} else {
+			tfDisplay.setText(String.valueOf(checkInt));
+			result = result.replace(0, result.length(), String.valueOf(checkInt));
+		}
+	}
+
+	void closingWindow() {
+		f.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent w) {
+				System.exit(0);
+			}
+		});
+	}
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Caculation c = new Caculation();
+		c.startFrame();
+	}
+
+}
